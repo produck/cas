@@ -1,0 +1,25 @@
+{
+  "name": "@produck/cas",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs": "",
+    "bootstrap": "lerna bootstrap --hoist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/produck/cas.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/produck/cas/issues"
+  },
+  "homepage": "https://github.com/produck/cas#readme",
+  "devDependencies": {
+    "lerna": "^3.20.2",
+    "vuepress": "^1.2.0"
+  }
+}

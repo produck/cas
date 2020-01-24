@@ -1,0 +1,22 @@
+{
+  "name": "@product/cas-server",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "ChaosLee <chaos2lee@qq.com>",
+  "homepage": "https://github.com/produck/cas/tree/master/packages/cas-server#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/produck/cas.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/produck/cas/issues"
+  },
+  "devDependencies": {
+    "mocha": "^7.0.0"
+  }
+}
