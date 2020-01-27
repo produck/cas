@@ -1,5 +1,5 @@
 {
-  "name": "@product/cas-server",
+  "name": "@produck/cas-server",
   "version": "0.0.0",
   "description": "> TODO: description",
   "author": "ChaosLee <chaos2lee@qq.com>",
@@ -18,5 +18,10 @@
   },
   "devDependencies": {
     "mocha": "^7.0.0"
+  },
+  "dependencies": {
+    "@koa/router": "^8.0.6",
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.2.1"
   }
 }
