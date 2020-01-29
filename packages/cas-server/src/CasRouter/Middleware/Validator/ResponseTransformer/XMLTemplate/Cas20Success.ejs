@@ -1,0 +1,13 @@
+<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
+  <cas:authenticationSuccess>
+    <cas:user><?= user ?></cas:user>
+    <cas:proxyGrantingTicket><?= proxyGrantingTicket ?></cas:proxyGrantingTicket>
+    <% if (proxies && proxies.length !== 0) { %>
+    <cas:proxies>
+      <% proxies.forEach(proxy => { %>
+      <cas:proxy><?= proxy ?></cas:proxy>
+      <% }) %>
+    </cas:proxies>
+    <% } %>
+  </cas:authenticationSuccess>
+</cas:serviceResponse>

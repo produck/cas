@@ -4,8 +4,7 @@ const bodyparser = require('koa-bodyparser');
 
 const CasRouter = require('./src/CasRouter');
 
-exports.CasServer = function CasServer(options, factory) {
-	const application = new Koa();
+exports.CasServer = function CasServer(options, factory = () => {}) {
 	const ticketRegistry = new TicketRegistry(options.Ticket);
 	const serviceRegistry = new ServiceRegistry(options.Service);
 
@@ -20,6 +19,8 @@ exports.CasServer = function CasServer(options, factory) {
 	router
 		.use(casRouter.routes())
 		.use(extensionRouter.routes());
+
+	const application = new Koa();
 
 	application
 		.use(bodyparser())

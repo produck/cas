@@ -1,0 +1,18 @@
+<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
+  <cas:authenticationSuccess>
+    <cas:user><?= principal.user ?></cas:user>
+    <cas:proxyGrantingTicket><?= proxyGrantingTicket ?></cas:proxyGrantingTicket>
+    <cas:attributes>
+      <% Object.keys(principal.attributes).forEach(key => { %>
+        <%- `<cas:${key}>${principal.attributes[key]}</cas:${key}>` %>
+      <% }) %>
+    </cas:attributes>
+    <% if (proxies && proxies.length !== 0) { %>
+    <cas:proxies>
+      <% proxies.forEach(proxy => { %>
+      <cas:proxy><?= proxy ?></cas:proxy>
+      <% }) %>
+    </cas:proxies>
+    <% } %>
+  </cas:authenticationSuccess>
+</cas:serviceResponse>
