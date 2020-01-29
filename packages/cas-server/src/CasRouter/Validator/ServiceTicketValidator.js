@@ -1,5 +1,6 @@
 
-	async function validatorPreFilter(ctx, next) {
+module.exports = function ServiceTicketValidator() {
+	async function serviceTicketValidator(ctx, next) {
 		const {
 			ticket: serviceTicketId,
 			pgtUrl,
@@ -20,6 +21,9 @@
 		ctx.state.serviceTicket = serviceTicketId;
 		ctx.state.renew = renew;
 		ctx.state.service = service;
+		ctx.state.cas = 1;
 	
 		return next();
 	}
+};
+

@@ -7,42 +7,73 @@ const ServiceTicketIssuer = require('./Credential/ServiceTicketIssuer');
 const ServiceTicketValidator = require('./Validator/ServiceTicketValidator');
 const ValidationTransformer = require('./Validator/ValidationTransformer');
 const ProxyTicketValidator = require('./Validator/ProxyTicketValidator');
-const Cas30PrincipalAttributes = require('./Validator/Cas30PrincipalAttributes');
 
 const TicketGrantTicketResolver = require('./TicketGrantTicketResolver');
 const ServiceFilter = require('./ServiceFilter');
 const SingleLogout = require('./SingleLogout');
 
-module.exports = function CasKoaRouter(ticketRegistry, serviceRegistry, options) {
-	const registry = {
-		ticket: ticketRegistry,
-		service: serviceRegistry
+function CasVersionSetter(casVersion) {
+	return function setCasVersion(ctx, next) {
+		ctx.state.cas = casVersion;
+
+		return next();
 	};
+}
 
-	const serviceFilter = ServiceFilter(registry, options);
-	const ticketGrantTicketResolver = TicketGrantTicketResolver(registry, options);
+module.exports = function CasKoaRouter({
+	ticketRegistry,
+	serviceRegistry,
+	Principal,
+	options
+}) {
+	const casRouter = new Router({
+		prefix: options.prefix
+	});
 
-	const credentialRequestor = CredentialRequestor(registry, options);
-	const credentialAcceptor = CredentialAcceptor(registry, options);
-	const issueST = ServiceTicketIssuer(registry, options);
+	const authenticationRouter = new Router();
+	const validationRouter = new Router();
 
-	const ptValidator = ProxyTicketValidator(registry, options);
-	const stValidator = ServiceTicketValidator(registry, options);
-	const formatBody = ValidationTransformer(registry, options);
-	const setAttributes = Cas30PrincipalAttributes(registry, options);
+	authenticationRouter
+		.get('/login', CredentialRequestor({
+			ticketRegistry,
+			authenticated(ctx) {
 
-	return new Router({ prefix: options.prefix })
-		.use(serviceFilter)
-		.use(ticketGrantTicketResolver)
-		.get('/logout', SingleLogout(registry, options), options.singleLogout)
-		.get('/login', credentialRequestor, issueST)
-		.post('/login', credentialAcceptor, issueST)
-		.get('/serviceValidate', stValidator, formatBody)
-		.get('/proxyValidate', stValidator, ptValidator, formatBody)
-		.get('/p3/serviceValidate', stValidator, setAttributes, formatBody)
-		.get('/p3/proxyValidate', stValidator, ptValidator, setAttributes, formatBody)
-		.get('/proxy', )
-		.get('/validate', stValidator, function cas10Response() {
+			},
+			credentialRequested(ctx) {
+				
+			}
+		}))
+		.post('/login', CredentialAcceptor({
+			ticketRegistry,
+			async authenticate(credential) {
+				const principal = await options.authenticate(credential);
 
-		});
+				Principal.validate(principal);
+
+				return principal;
+			}
+		}))
+		.use(ServiceTicketIssuer({
+			ticketRegistry
+		}));
+
+	validationRouter
+		.use(ServiceTicketValidator(ticketRegistry))
+		.get('/validate', CasVersionSetter(1), function cas10Response() {})
+		.use(ProxyTicketValidator(ticketRegistry))
+		.get('/serviceValidate', CasVersionSetter(2))
+		.get('/proxyValidate', CasVersionSetter(2))
+		.get('/p3/serviceValidate', CasVersionSetter(3))
+		.get('/p3/proxyValidate', CasVersionSetter(3))
+		.use(ValidationTransformer());
+
+	casRouter
+		.use(ServiceFilter(serviceRegistry))
+		.use(TicketGrantTicketResolver(ticketRegistry))
+		.use(authenticationRouter.routes())
+		.use(validationRouter.routes())
+		.get('/logout', SingleLogout(), options.singleLogout)
+		.get('/proxy', function issuePGT() {});
+
+	return casRouter;
 };

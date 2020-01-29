@@ -24,9 +24,9 @@
  */
 
 // flagGroup --> handlerIndex
-const FLAG_GROUP_TABLE = {
+const STRATEGY_FLAGGROUP_TABLE = {
 	'0,0,0,0': 1, '0,0,0,1': 1, '0,0,1,0': 1, '0,0,1,1': 1,
-	'0,1,0,0': 1, '0,1,0,1': 2, '0,1,1,0': 1, '0,1,1,1': 1,
+	'0,1,0,0': 1, '0,1,0,1': 1, '0,1,1,0': 1, '0,1,1,1': 1,
 	'1,0,0,0': 0, '1,0,0,1': 0, '1,0,1,0': 1, '1,0,1,1': 1,
 	'1,1,0,0': 2, '1,1,0,1': 2, '1,1,1,0': 1, '1,1,1,1': 1,
 };
@@ -35,45 +35,30 @@ function binarizeFlagValue(value) {
 	return value !== undefined ? 1 : 0;
 }
 
-module.exports = function CredentialRequestor(registry) {
+module.exports = function CredentialRequestor(Response) {
 	return async function requestor(ctx, next) {
-		const { ticketGrantCookie } = ctx.state;
-		const { renew, gateway, service } = ctx.query;
+		const { ticketGrantTicket, service } = ctx.state;
+		const { renew, gateway } = ctx.query;
 
-		const ticketGrantTicket = await registry.ticket.getTicketGrantTicketById(ticketGrantCookie);
-		const authenticated = ticketGrantTicket !== null;
+		const flagGroup = [
+			ticketGrantTicket !== null,
+			service !== null,
+			renew === 'true',
+			gateway === 'true'
+		].map(binarizeFlagValue).join(',');
 
-		const flagGroup = [authenticated, service, renew, gateway].map(binarizeFlagValue).join(',');
-		const handlerIndex = FLAG_GROUP_TABLE[flagGroup];
+		const strategy = STRATEGY_FLAGGROUP_TABLE[flagGroup];
 
 		return [
-			function alreadyLoggedIn() {
-				ctx.state.data = {
-					type: 'login.authenticated'
-				};
-
-				return next();
+			function authenticated() {
+				return Response.authenticated(ctx);
 			},
-			async function requestCredentials() {
-				const loginTicket = await registry.ticket.createLoginTicket();
-	
-				ctx.state.data = {
-					type: 'login.credential.request',
-					loginTicket: loginTicket
-				};
-
-				return next();
+			function requestCredentials() {
+				return Response.credentialRequested(ctx);
 			},
-			async function issueServiceTicket() {
-				if (ticketGrantTicket === null) {
-					return ctx.redirect(service);
-				}
-	
-				const ticketGrantTicketId = ticketGrantTicket.id;
-				const serviceTicket = await registry.ticket.createServiceTicket(ticketGrantTicketId, service);
-
-				return ctx.redirect(`${service}?ticket=${serviceTicket.id}`);
+			function issueServiceTicket() {
+				return next();
 			}
-		][handlerIndex]();
+		][strategy]();
 	};
 };

@@ -1,37 +1,29 @@
 const Koa = require('koa');
 const Router = require('@koa/router');
 const bodyparser = require('koa-bodyparser');
+
 const CasRouter = require('./src/CasRouter');
-
-function TicketRegistry() {
-
-}
-
-function ServiceRegistry() {
-
-}
 
 exports.CasServer = function CasServer(options, factory) {
 	const application = new Koa();
 	const ticketRegistry = new TicketRegistry(options.Ticket);
 	const serviceRegistry = new ServiceRegistry(options.Service);
 
+	const router = new Router();
+	const extensionRouter = new Router();
 	const casRouter = CasRouter(ticketRegistry, serviceRegistry, {
 		
 	});
 
-	const extensionRouter = new Router();
+	factory(extensionRouter);
 
-	factory({
-		application,
-		router: extensionRouter
-	});
-
-	casRouter.use(extensionRouter.routes());
+	router
+		.use(casRouter.routes())
+		.use(extensionRouter.routes());
 
 	application
 		.use(bodyparser())
-		.use(casRouter.routes());
+		.use(router.routes());
 
 	return {
 		Callback() {

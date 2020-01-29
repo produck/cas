@@ -1,7 +1,7 @@
-module.exports = function ServiceFiler(registry, options) {
+module.exports = function ServiceFiler(serviceRegistry) {
 	return async function serviceFilter(ctx, next) {
 		const { service } = ctx.query;
-		const valid = await registry.service.test(service);
+		const valid = await serviceRegistry.service.test(service);
 
 		if (valid) {
 			ctx.state.service = service;
