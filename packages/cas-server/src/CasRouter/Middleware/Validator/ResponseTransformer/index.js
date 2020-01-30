@@ -69,6 +69,11 @@ const Response = {
 	}
 };
 
+const FORMAT_TYPE_MAP = {
+	XML: 'text/xml',
+	JSON: 'application/json'
+};
+
 module.exports = function ValidationTransformer() {
 	return async function transformValidation(ctx) {
 		const {
@@ -79,15 +84,7 @@ module.exports = function ValidationTransformer() {
 			proxies,
 			proxyGrantingTicket
 		} = ctx.state;
-
-		if (format === 'XML') {
-			ctx.type = 'text/xml';
-		}
-
-		if (format === 'JSON') {
-			ctx.type = 'application/json';
-		}
-		
+				
 		if (errorCode) {
 			return ctx.body = Response[format].Failure({
 				code: errorCode,
@@ -95,7 +92,8 @@ module.exports = function ValidationTransformer() {
 			});
 		}
 
-		return ctx.body = Response[format].Success[`Cas${version}0`]({
+		ctx.type = FORMAT_TYPE_MAP[format];
+		ctx.body = Response[format].Success[`Cas${version}0`]({
 			principal,
 			proxies,
 			proxyGrantingTicket

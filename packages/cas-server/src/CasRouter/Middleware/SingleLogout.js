@@ -2,7 +2,7 @@ async (ctx, next) => {
 	const { service } = ctx.query;
 	const { ticketGrantCookie } = ctx.state;
 	
-	await ticketRegistry.removeTicketGrantTicket(ticketGrantCookie);
+	await ticketRegistry.removeTicketGrantingTicket(ticketGrantCookie);
 	ctx.cookies.set(options.ticketGrantCookieName, null);
 	
 	if (service !== undefined) {

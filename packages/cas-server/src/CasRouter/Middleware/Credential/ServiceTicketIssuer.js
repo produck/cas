@@ -1,18 +1,16 @@
-module.exports = function ServiceTicketIssuer(
-	ticketRegistry
-) {
+module.exports = function ServiceTicketIssuer(ticketRegistry) {
 	return async function issueServiceTicket(ctx) {
-		const { ticketGrantTicket, service } = ctx.state;
-		const ticket = await ticketRegistry.createServiceTicket(ticketGrantTicket.id);
+		const { ticketGrantingTicket, service } = ctx.state;
+		const ticket = await ticketRegistry.createServiceTicket(ticketGrantingTicket.id);
 
-		ctx.redirect(resolveIssueURL(service, ticket));
+		ctx.redirect(resolveIssueURL(service, ticket.id));
 	};
 };
 
-function resolveIssueURL(service, ticket) {
+function resolveIssueURL(service, serviceTicketId) {
 	const url = new URL(service);
 
-	url.searchParams.set('ticket', ticket);
+	url.searchParams.set('ticket', serviceTicketId);
 
 	return url.toString();
 }

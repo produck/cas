@@ -37,11 +37,11 @@ function binarizeFlagValue(value) {
 
 module.exports = function CredentialRequestor(Response) {
 	return async function requestor(ctx, next) {
-		const { ticketGrantTicket, service } = ctx.state;
+		const { ticketGrantingTicket, service } = ctx.state;
 		const { renew, gateway } = ctx.query;
 
 		const flagGroup = [
-			ticketGrantTicket !== null,
+			ticketGrantingTicket !== null,
 			service !== null,
 			renew === 'true',
 			gateway === 'true'

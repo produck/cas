@@ -8,13 +8,13 @@ const ServiceTicketValidator = require('./Middleware/Validator/ServiceTicketVali
 const ResponseTransformer = require('./Middleware/Validator/ResponseTransformer');
 const ProxyTicketValidator = require('./Middleware/Validator/ProxyTicketValidator');
 
-const TicketGrantTicketResolver = require('./Middleware/TicketGrantTicketResolver');
+const TicketGrantingTicketResolver = require('./Middleware/TicketGrantingTicketResolver');
 const ServiceFilter = require('./Middleware/ServiceFilter');
 const SingleLogout = require('./Middleware/SingleLogout');
 
-function CasVersionSetter(casVersion) {
+function CasVersionSetter(versionNumber) {
 	return function setCasVersion(ctx, next) {
-		ctx.state.cas = casVersion;
+		ctx.state.cas = versionNumber;
 
 		return next();
 	};
@@ -58,22 +58,22 @@ module.exports = function CasKoaRouter({
 		}));
 
 	const validateProxyTicket = ProxyTicketValidator(ticketRegistry);
-	const cas10 = CasVersionSetter(1);
-	const cas20 = CasVersionSetter(3);
-	const cas30 = CasVersionSetter(3);
+	const setCas10 = CasVersionSetter(1);
+	const setCas20 = CasVersionSetter(3);
+	const setCas30 = CasVersionSetter(3);
 
 	validationRouter
 		.use(ServiceTicketValidator(ticketRegistry))
-		.get('/validate', cas10)
-		.get('/serviceValidate', cas20)
-		.get('/p3/serviceValidate', cas30)
-		.get('/proxyValidate', cas20, validateProxyTicket)
-		.get('/p3/proxyValidate', cas30, validateProxyTicket)
+		.get('/validate', setCas10)
+		.get('/serviceValidate', setCas20)
+		.get('/p3/serviceValidate', setCas30)
+		.get('/proxyValidate', setCas20, validateProxyTicket)
+		.get('/p3/proxyValidate', setCas30, validateProxyTicket)
 		.use(ResponseTransformer());
 
 	casRouter
 		.use(ServiceFilter(serviceRegistry))
-		.use(TicketGrantTicketResolver(ticketRegistry))
+		.use(TicketGrantingTicketResolver(ticketRegistry))
 		.use(authenticationRouter.routes())
 		.use(validationRouter.routes())
 		.get('/logout', SingleLogout(), options.singleLogout)

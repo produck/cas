@@ -39,7 +39,7 @@ exports.normalize = function normalizeOptions(options) {
 			Registry: {
 
 			},
-			TicketGrantTicket: {
+			TicketGrantingTicket: {
 				maxTimeToLiveInSeconds: 28800000,
 				timeToKillInSeconds: 7200000
 			},

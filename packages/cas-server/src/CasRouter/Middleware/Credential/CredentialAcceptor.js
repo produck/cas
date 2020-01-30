@@ -18,15 +18,15 @@ module.exports = function CredentialAcceptor(ticketRegistry, Principal, logouter
 			return ctx.throw(401);
 		}
 
-		const { ticketGrantTicket } = ctx.state;
+		const { ticketGrantingTicket } = ctx.state;
 
-		if (ticketGrantTicket !== null) {
-			ticketRegistry.destroyTicketGrantTicket(ticketGrantTicket.id);
-			logouter.dispatch(ticketGrantTicket.serviceTicketList);
+		if (ticketGrantingTicket !== null) {
+			ticketRegistry.destroyTicketGrantingTicket(ticketGrantingTicket.id);
+			logouter.dispatch(ticketGrantingTicket.serviceTicketList);
 		}
 
 		ctx.state.principal = principal;
-		ctx.state.ticketGrantTicket = await ticketRegistry.createTicketGrantTicket();
+		ctx.state.ticketGrantingTicket = await ticketRegistry.createTicketGrantingTicket();
 		ctx.state.primary = true;
 
 		return next();

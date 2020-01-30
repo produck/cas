@@ -1,17 +1,17 @@
-module.exports = function TicketGrantTicketResolver({
+module.exports = function TicketGrantingTicketResolver({
 	ticketRegistry,
 	ticketGrantCookieName,
 	Principal
 }) {
-	return async function resolveTicketGrantTicket(ctx, next) {
+	return async function resolveTicketGrantingTicket(ctx, next) {
 		const ticketGrantCookie = ctx.cookies.get(ticketGrantCookieName);
-		const ticketGrantTicket = await ticketRegistry.getTicketGrantTicketById(ticketGrantCookie);
+		const ticketGrantingTicket = await ticketRegistry.getTicketGrantingTicketById(ticketGrantCookie);
 		
-		if (ticketGrantTicket) {
-			ctx.state.ticketGrantTicket = ticketGrantTicket;
-			ctx.state.principal = await Principal.get(ticketGrantTicket.id);
+		if (ticketGrantingTicket) {
+			ctx.state.ticketGrantingTicket = ticketGrantingTicket;
+			ctx.state.principal = await Principal.get(ticketGrantingTicket.id);
 		} else {
-			ctx.state.ticketGrantTicket = null;
+			ctx.state.ticketGrantingTicket = null;
 			ctx.state.principal = null;
 		}
 
