@@ -1,17 +1,17 @@
-async (ctx, next) => {
-	const { service } = ctx.query;
-	const { ticketGrantCookie } = ctx.state;
-	
-	await ticketRegistry.removeTicketGrantingTicket(ticketGrantCookie);
-	ctx.cookies.set(options.ticketGrantCookieName, null);
-	
-	if (service !== undefined) {
-		return ctx.redirect(service);
-	}
+module.exports = function SingleLogout({ Response, Ticket, tgcName }) {
+	const logoutResponse = Response.Logout();
 
-	ctx.state.data = {
-		type: 'logout.noservice'
+	return async function logout(ctx) {
+		const { service } = ctx.query;
+		const { ticketGrantingTicket } = ctx.state;
+		
+		ctx.cookies.set(tgcName, null);
+		Ticket.destroyTicketGrantingTicket(ticketGrantingTicket.id);
+		
+		if (service !== undefined) {
+			return ctx.redirect(service);
+		}
+		
+		return logoutResponse(ctx);
 	};
-
-	return next();
-}
+};

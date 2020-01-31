@@ -1,12 +1,14 @@
-module.exports = function CredentialAcceptor(ticketRegistry, Principal, logouter) {
-	return async function credentialAcceptor(ctx, next) {
+const CasError = require('./IssuerErrors');
+
+module.exports = function CredentialAcceptor({ Ticket, Principal }) {
+	return async function credentialAcceptor(ctx) {
 		//TODO
 		// const { warn, method } = ctx.query;
 		const loginTicketId = ctx.request.body.execution;
-		const isValidLoginTicket = await ticketRegistry.validateLoginTicket(loginTicketId);
+		const isValidLoginTicket = await Ticket.validateLoginTicket(loginTicketId);
 
 		if (!isValidLoginTicket) {
-			return ctx.redirect('/');
+			throw CasError.BadLoginTicket();
 		}
 
 		const principal = await Principal.authenticate({
@@ -15,20 +17,17 @@ module.exports = function CredentialAcceptor(ticketRegistry, Principal, logouter
 		});
 
 		if (principal === null) {
-			return ctx.throw(401);
+			throw CasError.AuthenticationFailure();
 		}
 
 		const { ticketGrantingTicket } = ctx.state;
 
 		if (ticketGrantingTicket !== null) {
-			ticketRegistry.destroyTicketGrantingTicket(ticketGrantingTicket.id);
-			logouter.dispatch(ticketGrantingTicket.serviceTicketList);
+			Ticket.destroyTicketGrantingTicket(ticketGrantingTicket.id);
 		}
 
 		ctx.state.principal = principal;
-		ctx.state.ticketGrantingTicket = await ticketRegistry.createTicketGrantingTicket();
+		ctx.state.ticketGrantingTicket = await Ticket.createTicketGrantingTicket();
 		ctx.state.primary = true;
-
-		return next();
 	};
 };

@@ -2,17 +2,54 @@ const Koa = require('koa');
 const Router = require('@koa/router');
 const bodyparser = require('koa-bodyparser');
 
+const TicketRegistry = require('./src/TicketRegistry');
+const ServiceRegistry = require('./src/ServiceRegistry');
+const PrincipalProvider = require('./src/Principal');
+
 const CasRouter = require('./src/CasRouter');
 
+function ServerContext(options) {
+	const context =  {
+		suffix: 'a',
+		tgcName: 'CASTGC',
+		Ticket: new TicketRegistry(options.Ticket),
+		Service: new ServiceRegistry(options.Service),
+		Principal: new PrincipalProvider(),
+		Response: {
+			AuthenticationFailure() {
+	
+			},
+			AuthenticationSuccess() {
+	
+			},
+			CredentialHolder() {
+
+			},
+			BadLoginTicket() {
+
+			},
+			Logout() {
+
+			}
+		},
+		async authenticate(credential) {
+			const principal = await options.authenticate(credential);
+
+			context.Principal.assert(principal);
+
+			return principal;
+		},
+	};
+
+	return context;
+}
+
 exports.CasServer = function CasServer(options, factory = () => {}) {
-	const ticketRegistry = new TicketRegistry(options.Ticket);
-	const serviceRegistry = new ServiceRegistry(options.Service);
+	const context = ServerContext(options);
 
 	const router = new Router();
 	const extensionRouter = new Router();
-	const casRouter = CasRouter(ticketRegistry, serviceRegistry, {
-		
-	});
+	const casRouter = CasRouter(ServerContext);
 
 	factory(extensionRouter);
 

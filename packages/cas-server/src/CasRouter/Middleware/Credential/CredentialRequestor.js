@@ -22,43 +22,21 @@
  * 
  * https://apereo.github.io/cas/6.1.x/protocol/CAS-Protocctxol-Specification.html#28-p3servicevalidate-cas-30
  */
+const CasError = require('./IssuerErrors');
 
-// flagGroup --> handlerIndex
-const STRATEGY_FLAGGROUP_TABLE = {
-	'0,0,0,0': 1, '0,0,0,1': 1, '0,0,1,0': 1, '0,0,1,1': 1,
-	'0,1,0,0': 1, '0,1,0,1': 1, '0,1,1,0': 1, '0,1,1,1': 1,
-	'1,0,0,0': 0, '1,0,0,1': 0, '1,0,1,0': 1, '1,0,1,1': 1,
-	'1,1,0,0': 2, '1,1,0,1': 2, '1,1,1,0': 1, '1,1,1,1': 1,
-};
-
-function binarizeFlagValue(value) {
-	return value !== undefined ? 1 : 0;
-}
-
-module.exports = function CredentialRequestor(Response) {
-	return async function requestor(ctx, next) {
-		const { ticketGrantingTicket, service } = ctx.state;
+module.exports = function CredentialRequestor() {
+	return async function requestor(ctx) {
+		const { ticketGrantingTicket } = ctx.state;
 		const { renew, gateway } = ctx.query;
+		
+		ctx.state.primary = false;
 
-		const flagGroup = [
-			ticketGrantingTicket !== null,
-			service !== null,
-			renew === 'true',
-			gateway === 'true'
-		].map(binarizeFlagValue).join(',');
+		if (gateway && !renew) {
+			throw CasError.GatewayWithoutTicket();
+		}
 
-		const strategy = STRATEGY_FLAGGROUP_TABLE[flagGroup];
-
-		return [
-			function authenticated() {
-				return Response.authenticated(ctx);
-			},
-			function requestCredentials() {
-				return Response.credentialRequested(ctx);
-			},
-			function issueServiceTicket() {
-				return next();
-			}
-		][strategy]();
+		if (ticketGrantingTicket === null || renew) {
+			throw CasError.CredentialRequired();
+		}
 	};
 };

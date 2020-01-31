@@ -2,13 +2,13 @@ const Randexp = require('randexp');
 const http = require('http');
 const generator = new Randexp(/[a-z0-9A-Z]{24}/);
 
-module.exports = function ProxyTicketValidator(ticketRegistry) {
+module.exports = function ProxyTicketValidator({ Ticket }) {
 	return async function validateProxyTicket(ctx, next) {
 		const { pgtUrl } = ctx.query;
 
 		if (pgtUrl) {
 			const { ticketGrantingTicket } = ctx.state;
-			const proxyGrantingTicket = await ticketRegistry.createProxyGrantingTicket(ticketGrantingTicket.id);
+			const proxyGrantingTicket = await Ticket.createProxyGrantingTicket(ticketGrantingTicket.id);
 			const pgtIou = `PGTIOU-${generator.gen()}`;
 			const callbackUrl = new URL(pgtUrl);
 
