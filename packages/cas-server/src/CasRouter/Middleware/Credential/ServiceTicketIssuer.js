@@ -15,7 +15,7 @@ module.exports = function ServiceTicketIssuer({ Ticket, tgcName, Response }) {
 		try {
 			await next();
 
-			const { ticketGrantingTicket, service } = ctx.state;
+			const { ticketGrantingTicket, service, principal } = ctx.state;
 
 			if (ticketGrantingTicket !== null) {
 				if (service !== null) {

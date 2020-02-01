@@ -1,6 +1,6 @@
 const CasError = require('./IssuerErrors');
 
-module.exports = function CredentialAcceptor({ Ticket, Principal }) {
+module.exports = function CredentialAcceptor({ Ticket, Principal, authenticate }) {
 	return async function credentialAcceptor(ctx) {
 		//TODO
 		// const { warn, method } = ctx.query;
@@ -11,23 +11,24 @@ module.exports = function CredentialAcceptor({ Ticket, Principal }) {
 			throw CasError.BadLoginTicket();
 		}
 
-		const principal = await Principal.authenticate({
+		const principalAttributes = await authenticate({
 			parsed: ctx.request.body,
 			raw: ctx.request.rawBody
 		});
 
-		if (principal === null) {
+		if (principalAttributes === null) {
 			throw CasError.AuthenticationFailure();
 		}
-
+		
 		const { ticketGrantingTicket } = ctx.state;
+		const basicPrincipal = await Principal.create(ticketGrantingTicket.id, principalAttributes);
 
 		if (ticketGrantingTicket !== null) {
 			Ticket.destroyTicketGrantingTicket(ticketGrantingTicket.id);
 		}
 
-		ctx.state.principal = principal;
-		ctx.state.ticketGrantingTicket = await Ticket.createTicketGrantingTicket();
+		ctx.state.principal = basicPrincipal;
+		ctx.state.ticketGrantingTicket = await Ticket.createTicketGrantingTicket(basicPrincipal);
 		ctx.state.primary = true;
 	};
 };

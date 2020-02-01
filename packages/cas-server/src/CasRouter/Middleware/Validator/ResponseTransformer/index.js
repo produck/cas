@@ -32,19 +32,24 @@ module.exports = function ValidationTransformer() {
 			proxyGrantingTicket
 		} = ctx.state;
 
-		ctx.type = FORMAT_TYPE_MAP[format];
-				
-		if (errorCode !== null) {
-			ctx.body = Format[format].Failure({
-				code: errorCode,
-				description: ERROR_MAP[errorCode]
-			});
+		if (version === 1) {
+			ctx.type = 'text/plain';
+			ctx.body = errorCode ? 'no\n' : `yes\n${principal.user}\n`;
 		} else {
-			ctx.body = Format[format].Success[`Cas${version}0`]({
-				principal,
-				proxies,
-				proxyGrantingTicket
-			});
+			ctx.type = FORMAT_TYPE_MAP[format];
+					
+			if (errorCode !== null) {
+				ctx.body = Format[format].Failure({
+					code: errorCode,
+					description: ERROR_MAP[errorCode]
+				});
+			} else {
+				ctx.body = Format[format].Success[`Cas${version}0`]({
+					principal,
+					proxies,
+					proxyGrantingTicket
+				});
+			}
 		}
 	};
 };

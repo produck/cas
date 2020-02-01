@@ -76,8 +76,8 @@ module.exports = class TicketRegistry extends EventEmitter {
 		return ticket;
 	}
 	
-	async createProxyTicket(proxyGrantingTicketId, service) {
-		const ticket = this.Ticket.ProxyTicket(proxyGrantingTicketId, service);
+	async createProxyTicket(proxyGrantingTicketId, targetService) {
+		const ticket = this.Ticket.ProxyTicket(proxyGrantingTicketId, targetService);
 
 		await this.store.ProxyTicket.create(ticket);
 
@@ -93,6 +93,16 @@ module.exports = class TicketRegistry extends EventEmitter {
 	}
 
 	async getTicketGrantingTicket(id) {
+		const ticket = this.store.TicketGrantingTicket.select(id);
+
+		if (ticket === null) {
+			throw new Error('TGT is NOT existed.');
+		}
+
+		return ticket;
+	}
+
+	async getProxyGrantingTicket(id) {
 		const ticket = this.store.TicketGrantingTicket.select(id);
 
 		if (ticket === null) {

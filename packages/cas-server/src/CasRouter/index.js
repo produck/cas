@@ -8,7 +8,7 @@ const ServiceTicketValidator = require('./Middleware/Validator/ServiceTicketVali
 const ResponseTransformer = require('./Middleware/Validator/ResponseTransformer');
 const ProxyTicketValidator = require('./Middleware/Validator/ProxyTicketValidator');
 
-const ProxyGrantingTicketIssuer = require('./Middleware/ProxyGrantingTicketIssuer');
+const ProxyTicketIssuer = require('./Middleware/ProxyTicketIssuer');
 const TicketGrantingTicketResolver = require('./Middleware/TicketGrantingTicketResolver');
 const ServiceFilter = require('./Middleware/ServiceValidator');
 const SingleLogout = require('./Middleware/SingleLogout');
@@ -47,7 +47,7 @@ module.exports = function CasKoaRouter(serverContext) {
 		.use(authenticationRouter.routes())
 		.use(validationRouter.routes())
 		.get('/logout', SingleLogout(serverContext))
-		.get('/proxy', ProxyGrantingTicketIssuer(serverContext));
+		.get('/proxy', ProxyTicketIssuer(serverContext));
 
 	return casRouter;
 };

@@ -1,4 +1,4 @@
-const ejs = require('./node_modules/ejs');
+const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
 

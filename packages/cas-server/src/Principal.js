@@ -1,22 +1,28 @@
-function PrincipalCasV1(user) {
-	return user;
-};
+module.exports = function PrincipalProvider(userAttribute, store) {
+	return class Principal {
+		constructor(user, attributes) {
+			this.user = user;
+			this.attributes = attributes;
+		}
 
-function PrincipalCasV2(user) {
-	return {
-		user: user
+		extendAttributes(object) {
+			return Object.assign(this.attributes, object);
+		}
+		
+		static async get(ticketGrantingTicket) {
+			const principal = await store.get(ticketGrantingTicket);
+	
+			return new Principal(principal[userAttribute], principal);
+		}
+		
+		static async create(ticketGrantingTicket, attributes) {
+			const principal = await store.create(ticketGrantingTicket, attributes);
+	
+			return new Principal(principal[userAttribute], principal);
+		}
+
+		static async put(serviceTicket) {
+			
+		}
 	};
-};
-
-function PrincipalCasV3(user, attribute) {
-	return {
-		user: user,
-		attribute: attribute
-	};
-};
-
-module.exports = {
-	v1: PrincipalCasV1,
-	v2: PrincipalCasV2,
-	v3: PrincipalCasV3
 };

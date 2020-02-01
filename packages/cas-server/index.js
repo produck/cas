@@ -32,13 +32,7 @@ function ServerContext(options) {
 
 			}
 		},
-		async authenticate(credential) {
-			const principal = await options.authenticate(credential);
-
-			context.Principal.assert(principal);
-
-			return principal;
-		},
+		authenticate: options.authenticate,
 	};
 
 	return context;
@@ -49,7 +43,7 @@ exports.CasServer = function CasServer(options, factory = () => {}) {
 
 	const router = new Router();
 	const extensionRouter = new Router();
-	const casRouter = CasRouter(ServerContext);
+	const casRouter = CasRouter(context);
 
 	factory(extensionRouter);
 
