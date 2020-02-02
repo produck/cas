@@ -15,6 +15,7 @@ function ServerContext(options) {
 		Ticket: new TicketRegistry(options.Ticket),
 		Service: new ServiceRegistry(options.Service),
 		Principal: new PrincipalProvider(),
+		extendAttributes: options.pirncipal.extender,
 		Response: {
 			AuthenticationFailure() {
 	

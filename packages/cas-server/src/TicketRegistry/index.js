@@ -54,24 +54,24 @@ module.exports = class TicketRegistry extends EventEmitter {
 		return ticket;
 	}
 	
-	async createServiceTicket(ticketGrantingTicketId, service) {
+	async createServiceTicket(ticketGrantingTicketId, service, principal) {
 		const ticketGrantingTicket = await this.store.TicketGrantingTicket.select(ticketGrantingTicketId);
 
 		if (ticketGrantingTicket === null || this.isExpired(ticketGrantingTicket)) {
 			throw new Error('Ticket granting ticket is invalid');
 		}
 
-		const ticket = this.Ticket.ServiceTicket(ticketGrantingTicketId, service);
+		const ticket = this.Ticket.ServiceTicket({ ticketGrantingTicketId, service, principal });
 
 		await this.store.ServiceTicket.create(ticket);
 
 		return ticket;
 	}
 	
-	async createTicketGrantingTicket() {
+	async createTicketGrantingTicket(principal) {
 		const ticket = this.Ticket.TicketGrantingTicket();
 
-		await this.store.TicketGrantingTicket.create(ticket);
+		await this.store.TicketGrantingTicket.create(ticket, principal);
 
 		return ticket;
 	}
@@ -84,8 +84,8 @@ module.exports = class TicketRegistry extends EventEmitter {
 		return ticket;
 	}
 	
-	async createProxyGrantingTicket(parentId) {
-		const ticket = this.Ticket.ProxyGrantingTicket(parentId);
+	async createProxyGrantingTicket(principal, parentId) {
+		const ticket = this.Ticket.ProxyGrantingTicket(principal, parentId);
 
 		await this.store.ProxyGrantingTicket.create(ticket);
 

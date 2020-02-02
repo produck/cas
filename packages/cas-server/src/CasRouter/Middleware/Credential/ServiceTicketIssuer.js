@@ -1,6 +1,6 @@
 const CasError = require('./IssuerErrors');
 
-module.exports = function ServiceTicketIssuer({ Ticket, tgcName, Response }) {
+module.exports = function ServiceTicketIssuer({ Ticket, tgcName, Response, extendAttributes }) {
 	const responseMap = {
 		GatewayWithoutTicket: ctx => {
 			ctx.redirect(ctx.state.service);
@@ -15,11 +15,14 @@ module.exports = function ServiceTicketIssuer({ Ticket, tgcName, Response }) {
 		try {
 			await next();
 
-			const { ticketGrantingTicket, service, principal } = ctx.state;
+			const { ticketGrantingTicket, service, principal, primary } = ctx.state;
 
 			if (ticketGrantingTicket !== null) {
 				if (service !== null) {
 					const serviceTicket = await Ticket.createServiceTicket(ticketGrantingTicket.id);
+					
+					principal.extend({ primary });
+					extendAttributes(principal, ctx.state);
 					
 					ctx.cookies.set(tgcName, serviceTicket.id);
 					ctx.redirect(IssueToURL(service, serviceTicket.id));

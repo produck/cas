@@ -5,7 +5,7 @@ module.exports = function PrincipalProvider(userAttribute, store) {
 			this.attributes = attributes;
 		}
 
-		extendAttributes(object) {
+		extend(object) {
 			return Object.assign(this.attributes, object);
 		}
 		
