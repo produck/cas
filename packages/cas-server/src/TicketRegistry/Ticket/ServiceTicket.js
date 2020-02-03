@@ -1,13 +1,21 @@
 const utils = require('./utils');
 
 module.exports = function ServiceTicketProvider({ suffix, counter }) {
-	return function ServiceTicket(ticketGrantingTicket, service) {
+	return function ServiceTicket({
+		ticketGrantingTicket,
+		service,
+		user,
+		attributes
+	}) {
 		return {
 			id: `ST-${counter.serviceTicket}-${utils.TicketBody()}-${suffix}`,
 			ticketGrantingTicketId: ticketGrantingTicket.id,
-			createdAt: Date.now(),
 			validated: false,
-			service: service.name
+			createdAt: Date.now(),
+
+			service: service,
+			user: user,
+			attributes: attributes,
 		};
 	};
 };

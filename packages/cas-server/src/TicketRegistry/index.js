@@ -57,11 +57,16 @@ module.exports = class TicketRegistry extends EventEmitter {
 	async createServiceTicket(ticketGrantingTicketId, service, principal) {
 		const ticketGrantingTicket = await this.store.TicketGrantingTicket.select(ticketGrantingTicketId);
 
-		if (ticketGrantingTicket === null || this.isExpired(ticketGrantingTicket)) {
-			throw new Error('Ticket granting ticket is invalid');
-		}
+		// if (ticketGrantingTicket === null || this.isExpired(ticketGrantingTicket)) {
+		// 	throw new Error('Ticket granting ticket is invalid');
+		// }
 
-		const ticket = this.Ticket.ServiceTicket({ ticketGrantingTicketId, service, principal });
+		const ticket = this.Ticket.ServiceTicket({ 
+			ticketGrantingTicket,
+			service,
+			user: principal.user,
+			attributes: principal.attributes
+		});
 
 		await this.store.ServiceTicket.create(ticket);
 
@@ -69,15 +74,26 @@ module.exports = class TicketRegistry extends EventEmitter {
 	}
 	
 	async createTicketGrantingTicket(principal) {
-		const ticket = this.Ticket.TicketGrantingTicket();
+		const ticket = this.Ticket.TicketGrantingTicket({
+			user: principal.user,
+			attributes: principal.attributes
+		});
 
-		await this.store.TicketGrantingTicket.create(ticket, principal);
+		await this.store.TicketGrantingTicket.create(ticket);
 
 		return ticket;
 	}
 	
-	async createProxyTicket(proxyGrantingTicketId, targetService) {
-		const ticket = this.Ticket.ProxyTicket(proxyGrantingTicketId, targetService);
+	async createProxyTicket(proxyGrantingTicketId, targetService, principal) {
+		const proxyGrantingTicket = await this.store.ProxyGrantingTicket.select(proxyGrantingTicketId);
+
+		const ticket = this.Ticket.ProxyTicket({
+			proxyGrantingTicket,
+			targetService,
+			user: principal.user,
+			attributes: principal.attributes,
+			proxies: proxyGrantingTicket.proxies
+		});
 
 		await this.store.ProxyTicket.create(ticket);
 
@@ -112,7 +128,7 @@ module.exports = class TicketRegistry extends EventEmitter {
 		return ticket;
 	}
 
-	async validateServiceTicket() {
+	async getServiceTicket() {
 
 	}
 

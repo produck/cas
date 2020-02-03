@@ -1,13 +1,22 @@
 const utils = require('./utils');
 
 module.exports = function ProxyTicketProvider({ suffix, counter }) {
-	return function ServiceTicket(ticketGrantingTicket, service) {
+	return function ProxyTicket({
+		proxyGrantingTicket,
+		service,
+		user,
+		attributes
+	}) {
 		return {
 			id: `PT-${counter.serviceTicket}-${utils.TicketBody()}-${suffix}`,
-			ticketGrantingTicketId: ticketGrantingTicket.id,
-			createdAt: Date.now(),
+			proxyGrantingTicketId: proxyGrantingTicket.id,
 			validated: false,
-			service: service.name
+			createdAt: Date.now(),
+			
+			service: service,
+			user: user,
+			attributes: attributes,
+			proxies: proxyGrantingTicket.proxies,
 		};
 	};
 };
