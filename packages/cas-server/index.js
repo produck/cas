@@ -39,7 +39,7 @@ function ServerContext(options) {
 	return context;
 }
 
-exports.CasServer = function CasServer(options, factory = () => {}) {
+exports.Server = function CasServer(options, factory = () => {}) {
 	const context = ServerContext(options);
 
 	const router = new Router();

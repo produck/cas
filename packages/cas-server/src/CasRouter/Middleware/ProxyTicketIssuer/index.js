@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const Template = {
-	Success: fs.readFileSync(path.join(__dirname, 'SuccessTemplate'), 'utf-8'),
-	Failure: fs.readFileSync(path.join(__dirname, 'FailureTemplate'), 'utf-8'),
+	Success: fs.readFileSync(path.join(__dirname, 'SuccessTemplate.ejs'), 'utf-8'),
+	Failure: fs.readFileSync(path.join(__dirname, 'FailureTemplate.ejs'), 'utf-8'),
 };
 
 const Renderer = {
