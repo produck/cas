@@ -1,66 +1,56 @@
-const Koa = require('koa');
-const Router = require('@koa/router');
-const bodyparser = require('koa-bodyparser');
+const Duck = require('@produck/duck');
+const DuckWeb = require('@produck/duck-web');
+const DuckLog = require('@produck/duck-log');
+const http = require('http');
+const https = require('https');
+
+const meta = require('./package.json');
+const normalize = require('./src/normalize');
 
 const TicketRegistry = require('./src/TicketRegistry');
 const ServiceRegistry = require('./src/ServiceRegistry');
 const PrincipalProvider = require('./src/Principal');
 
-const CasRouter = require('./src/CasRouter');
-
-function ServerContext(options) {
-	const context =  {
-		suffix: 'a',
-		tgcName: 'CASTGC',
-		Ticket: new TicketRegistry(options.Ticket),
-		Service: new ServiceRegistry(options.Service),
-		Principal: new PrincipalProvider(),
-		extendAttributes: options.pirncipal.extender,
-		Response: {
-			AuthenticationFailure() {
-	
-			},
-			AuthenticationSuccess() {
-	
-			},
-			CredentialHolder() {
-
-			},
-			BadLoginTicket() {
-
-			},
-			Logout() {
-
+module.exports = Duck({
+	id: 'org.produck.cas.server',
+	namespace: 'cas',
+	name: meta.name,
+	version: meta.version,
+	description: meta.description,
+	components: [
+		DuckWeb([
+			{
+				id: 'cas',
+				Application: require('./src/CasApplication')
 			}
-		},
-		authenticate: options.authenticate,
-	};
+		]),
+		DuckLog({
+			access: {
+				format: DuckLog.Format.ApacheCLF(),
+				AppenderList: [
+					DuckLog.Appender.Console()
+				]
+			}
+		})
+	]
+}, function ProduckCasServer({
+	Web, Log, injection
+}, options) {
+	const finalOptions = normalize(options);
 
-	return context;
-}
+	injection.Ticket = TicketRegistry();
+	injection.Service = ServiceRegistry();
+	injection.Principal = PrincipalProvider();
 
-exports.Server = function CasServer(options, factory = () => {}) {
-	const context = ServerContext(options);
-
-	const router = new Router();
-	const extensionRouter = new Router();
-	const casRouter = CasRouter(context);
-
-	factory(extensionRouter);
-
-	router
-		.use(casRouter.routes())
-		.use(extensionRouter.routes());
-
-	const application = new Koa();
-
-	application
-		.use(bodyparser())
-		.use(router.routes());
+	const app = Web.Application('cas');
+	const appWithLog = DuckLog.Adapter.HttpServer(app, _ => Log.access(_));
+	
+	Log();
 
 	return {
-		Callback() {
-			return application.callback();
+		start(options) {
+			
+
 		}
 	};
-};
+});

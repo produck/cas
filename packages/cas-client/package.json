@@ -17,6 +17,6 @@
     "url": "https://github.com/produck/cas/issues"
   },
   "devDependencies": {
-    "mocha": "^7.0.1"
+    "mocha": "^8.2.1"
   }
 }

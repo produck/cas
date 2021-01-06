@@ -2,9 +2,7 @@ const CasError = require('./IssuerErrors');
 
 module.exports = function ServiceTicketIssuer({ Ticket, tgcName, Response, extendAttributes }) {
 	const responseMap = {
-		GatewayWithoutTicket: ctx => {
-			ctx.redirect(ctx.state.service);
-		},
+		GatewayWithoutTicket: ctx => ctx.redirect(ctx.state.service),
 		BadLoginTicket: Response.BadLoginTicket,
 		CredentialRequired: Response.CredentialHolder,
 		AuthenticationSuccess: Response.AuthenticationSuccess,
