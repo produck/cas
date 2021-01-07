@@ -1,0 +1,53 @@
+{
+	"definitions": {
+		"port": {
+			"type": "number",
+			"max": 65535,
+			"min": 1
+		}
+	},
+	"type": "object",
+	"properties": {
+		"host": {
+			"type": "string",
+			"format": "ip"
+		},
+		"http": {
+			"type": "object",
+			"properties": {
+				"port": {
+					"$ref": "#/definitions/port"
+				},
+				"enabled": {
+					"type": "boolean"
+				},
+				"gateway": {
+					"type": "boolean"
+				}
+			}
+		},
+		"https": {
+			"type": "object",
+			"properties": {
+				"port": {
+					"$ref": "#/definitions/port"
+				},
+				"enabled": {
+					"type": "boolean"
+				},
+				"cert": {
+					"type": [
+						"string",
+						null
+					]
+				},
+				"key": {
+					"type": [
+						"string",
+						null
+					]
+				}
+			}
+		}
+	}
+}

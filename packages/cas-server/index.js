@@ -5,11 +5,15 @@ const http = require('http');
 const https = require('https');
 
 const meta = require('./package.json');
-const normalize = require('./src/normalize');
+const normalize = {
+	cas: require('./src/normalize/cas'),
+	server: require('./src/normalize/server'),
+};
 
 const TicketRegistry = require('./src/TicketRegistry');
 const ServiceRegistry = require('./src/ServiceRegistry');
 const PrincipalProvider = require('./src/Principal');
+const ExtensionManager = require('./src/ExtensionManager');
 
 module.exports = Duck({
 	id: 'org.produck.cas.server',
@@ -21,14 +25,26 @@ module.exports = Duck({
 		DuckWeb([
 			{
 				id: 'cas',
-				Application: require('./src/CasApplication')
+				Application: require('./src/Application/Cas')
+			},
+			{
+				id: 'gateway',
+				Application: require('./src/Application/Gateway')
 			}
 		]),
 		DuckLog({
-			access: {
+			cas: {
 				format: DuckLog.Format.ApacheCLF(),
 				AppenderList: [
-					DuckLog.Appender.Console()
+					DuckLog.Appender.Console(),
+					// DuckLog.Appender.File(),
+				]
+			},
+			gateway: {
+				format: DuckLog.Format.ApacheCLF(),
+				AppenderList: [
+					DuckLog.Appender.Console(),
+					// DuckLog.Appender.File(),
 				]
 			}
 		})
@@ -36,21 +52,42 @@ module.exports = Duck({
 }, function ProduckCasServer({
 	Web, Log, injection
 }, options) {
-	const finalOptions = normalize(options);
+	const finalOptions = normalize.cas(options);
+	const extensionManager = new ExtensionManager();
 
+	injection.options = finalOptions;
 	injection.Ticket = TicketRegistry();
 	injection.Service = ServiceRegistry();
 	injection.Principal = PrincipalProvider();
+	injection.Extension = extensionManager;
 
-	const app = Web.Application('cas');
-	const appWithLog = DuckLog.Adapter.HttpServer(app, _ => Log.access(_));
-	
+	const { Adapter } = DuckLog;
+	const application = {
+		cas: Adapter.HttpServer(Web.Application('cas'), msg => Log.cas(msg)),
+		gateway: Adapter.HttpServer(Web.Application('gateway'), msg => Log.gateway(msg))
+	};
+
 	Log();
 
 	return {
 		start(options) {
-			
+			const finalOptions = normalize.server(options);
+			const { host } = finalOptions;
 
+			if (finalOptions.http.enabled) {
+				const { port, gateway } = finalOptions.http;
+				const name = gateway ? 'gateway' : 'cas';
+				const server = http.createServer(application[name]);
+
+				server.listen(port, host);
+			}
+
+			if (finalOptions.https.enabled) {
+				const { port, cert, key } = finalOptions.http;
+				const server = https.createServer({ key, cert }, application.cas);
+
+				server.listen(port, host);
+			}
 		}
 	};
 });
