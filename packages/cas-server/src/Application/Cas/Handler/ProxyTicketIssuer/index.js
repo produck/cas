@@ -18,41 +18,38 @@ const errors = {
 	INTERNAL_ERROR: 'an internal error occurred during ticket validation'
 };
 
-module.exports = function ProxyTicketIssuer({ Ticket, Service }) {
+module.exports = function ProxyTicketIssuer({ CAS }) {
+	function setBodyOnError(ctx, errorCode) {
+		return ctx.body = Renderer.Failure({
+			code: errorCode,
+			description: errors[errorCode]
+		});
+	}
+
 	return async function issueProxyTicket(ctx) {
 		try {
 			const { pgt, targetService } = ctx.query;
 
 			if (!pgt || !targetService) {
-				throw 'INVALID_REQUEST';
+				return setBodyOnError('INVALID_REQUEST');
 			}
 
-			const proxyGrantingTicket = await Ticket.getProxyGrantingTicket(pgt);
+			const proxyGrantingTicket = await CAS.Ticket.getProxyGrantingTicket(pgt);
 	
 			if (proxyGrantingTicket === null) {
-				throw 'INTERNAL_ERROR';
+				return setBodyOnError('INTERNAL_ERROR');
 			}
 	
-			const isServiceValid = await Service.test(targetService);
+			const isServiceValid = await CAS.Service.test(targetService);
 	
 			if (!isServiceValid) {
-				throw 'UNAUTHORIZED_SERVICE';
+				return setBodyOnError('UNAUTHORIZED_SERVICE');
 			}
 	
-			const proxyTicket = await Ticket.createProxyTicket(proxyGrantingTicket.id, targetService);
+			const proxyTicket = await CAS.Ticket.createProxyTicket(proxyGrantingTicket.id, targetService);
 	
 			return ctx.body = Renderer.Success(proxyTicket);
-		} catch (errorCode) {
-			
-			if (typeof errorCode === 'string') {
-				return ctx.body = Renderer.Failure({
-					code: errorCode,
-					description: errors[errorCode]
-				});
-			}
-			
-			const error = errorCode;
-
+		} catch (error) {
 			return ctx.body = Renderer.Failure({
 				code: 'INTERNAL_ERROR',
 				description: error.message

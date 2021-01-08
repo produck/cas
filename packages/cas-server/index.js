@@ -3,6 +3,7 @@ const DuckWeb = require('@produck/duck-web');
 const DuckLog = require('@produck/duck-log');
 const http = require('http');
 const https = require('https');
+const os = require('os');
 
 const meta = require('./package.json');
 const normalize = {
@@ -49,12 +50,19 @@ module.exports = Duck({
 	const finalOptions = normalize.cas(options);
 	const extensionManager = new ExtensionManager();
 
-	injection.options = finalOptions;
-	injection.Ticket = new TicketRegistry();
-	injection.Service = new ServiceRegistry(finalOptions.ServiceRegistry);
-	injection.Principal = new PrincipalProvider();
 	injection.Extension = extensionManager;
-
+	injection.options = finalOptions;
+	injection.CAS = {
+		Ticket: new TicketRegistry({
+			store: finalOptions.TicketRegistry.store,
+			expiration: () => {},
+			suffix: os.hostname()
+		}),
+		Response: {},
+		Service: new ServiceRegistry(finalOptions.ServiceRegistry),
+		Principal: new PrincipalProvider()
+	};
+	
 	const { Adapter } = DuckLog;
 	const application = {
 		cas: Adapter.HttpServer(Web.Application('cas'), msg => Log.cas(msg)),

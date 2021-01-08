@@ -1,12 +1,15 @@
 const CasError = require('./IssuerErrors');
 
-module.exports = function ServiceTicketIssuer({ Ticket, tgcName, Response, extendAttributes }) {
+module.exports = function ServiceTicketIssuer({
+	CAS, options,
+	// extendAttributes
+}) {
 	const responseMap = {
 		GatewayWithoutTicket: ctx => ctx.redirect(ctx.state.service),
-		BadLoginTicket: Response.BadLoginTicket,
-		CredentialRequired: Response.CredentialHolder,
-		AuthenticationSuccess: Response.AuthenticationSuccess,
-		AuthenticationFailure: Response.AuthenticationFailure
+		BadLoginTicket: CAS.Response.BadLoginTicket,
+		CredentialRequired: CAS.Response.CredentialHolder,
+		AuthenticationSuccess: CAS.Response.AuthenticationSuccess,
+		AuthenticationFailure: CAS.Response.AuthenticationFailure
 	};
 	
 	return async function issueServiceTicket(ctx, next) {
@@ -17,12 +20,12 @@ module.exports = function ServiceTicketIssuer({ Ticket, tgcName, Response, exten
 
 			if (ticketGrantingTicket !== null) {
 				if (service !== null) {
-					const serviceTicket = await Ticket.createServiceTicket(ticketGrantingTicket.id);
+					const serviceTicket = await CAS.Ticket.createServiceTicket(ticketGrantingTicket.id);
 					
 					principal.extend({ primary });
-					extendAttributes(principal, ctx.state);
+					// extendAttributes(principal, ctx.state);
 					
-					ctx.cookies.set(tgcName, serviceTicket.id);
+					ctx.cookies.set(options.tgcName, serviceTicket.id);
 					ctx.redirect(IssueToURL(service, serviceTicket.id));
 				}
 
