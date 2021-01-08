@@ -10,8 +10,8 @@ const normalize = {
 	server: require('./src/normalize/server'),
 };
 
-const TicketRegistry = require('./src/TicketRegistry');
-const ServiceRegistry = require('./src/ServiceRegistry');
+const TicketRegistry = require('./src/Registry/Ticket');
+const ServiceRegistry = require('./src/Registry/Service');
 const PrincipalProvider = require('./src/Principal');
 const ExtensionManager = require('./src/ExtensionManager');
 
@@ -23,14 +23,8 @@ module.exports = Duck({
 	description: meta.description,
 	components: [
 		DuckWeb([
-			{
-				id: 'cas',
-				Application: require('./src/Application/Cas')
-			},
-			{
-				id: 'gateway',
-				Application: require('./src/Application/Gateway')
-			}
+			{ id: 'cas', Application: require('./src/Application/Cas') },
+			{ id: 'gateway', Application: require('./src/Application/Gateway') }
 		]),
 		DuckLog({
 			cas: {
@@ -56,9 +50,9 @@ module.exports = Duck({
 	const extensionManager = new ExtensionManager();
 
 	injection.options = finalOptions;
-	injection.Ticket = TicketRegistry();
-	injection.Service = ServiceRegistry();
-	injection.Principal = PrincipalProvider();
+	injection.Ticket = new TicketRegistry();
+	injection.Service = new ServiceRegistry(finalOptions.ServiceRegistry);
+	injection.Principal = new PrincipalProvider();
 	injection.Extension = extensionManager;
 
 	const { Adapter } = DuckLog;

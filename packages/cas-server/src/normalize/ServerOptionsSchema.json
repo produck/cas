@@ -2,15 +2,14 @@
 	"definitions": {
 		"port": {
 			"type": "number",
-			"max": 65535,
-			"min": 1
+			"maximum": 65535,
+			"minimum": 1
 		}
 	},
 	"type": "object",
 	"properties": {
 		"host": {
-			"type": "string",
-			"format": "ip"
+			"type": "string"
 		},
 		"http": {
 			"type": "object",
@@ -24,7 +23,8 @@
 				"gateway": {
 					"type": "boolean"
 				}
-			}
+			},
+			"additionalProperties": false
 		},
 		"https": {
 			"type": "object",
@@ -36,18 +36,14 @@
 					"type": "boolean"
 				},
 				"cert": {
-					"type": [
-						"string",
-						null
-					]
+					"type": "string"
 				},
 				"key": {
-					"type": [
-						"string",
-						null
-					]
+					"type": "string"
 				}
-			}
+			},
+			"additionalProperties": false
 		}
-	}
+	},
+	"additionalProperties": false
 }

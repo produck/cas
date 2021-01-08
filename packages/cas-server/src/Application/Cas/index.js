@@ -12,7 +12,7 @@ const ProxyGrantingTicketIssuer = require('./Handler/Validator/ProxyGrantingTick
 
 const ProxyTicketIssuer = require('./Handler/ProxyTicketIssuer');
 const TicketGrantingTicketResolver = require('./Handler/TicketGrantingTicketResolver');
-const ServiceFilter = require('./Handler/ServiceValidator');
+const ServiceValidator = require('./Handler/ServiceValidator');
 const SingleLogout = require('./Handler/SingleLogout');
 
 function CasVersionSetter(versionNumber) {
@@ -42,7 +42,7 @@ module.exports = DuckWebKoa(function CasApplication(app, {
 		.get('/p3/proxyValidate', CasVersionSetter(3));
 	
 	casRouter
-		.use(ServiceFilter(injection))
+		.use(ServiceValidator(injection))
 		.use(TicketGrantingTicketResolver(injection))
 		.use(authenticationRouter.routes())
 		.use(validationRouter.routes())

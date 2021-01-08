@@ -1,7 +1,7 @@
 const { Normalizer, Validator } = require('@produck/duck');
 
 module.exports = Normalizer({
-	default: () => {},
+	defaults: () => {},
 	validate: Validator(require('./ServerOptionsSchema.json')),
 	handler(_options) {
 		const options = {
@@ -14,8 +14,8 @@ module.exports = Normalizer({
 			https: {
 				port: 443,
 				enabled: false,
-				cert: null,
-				key: null
+				cert: undefined,
+				key: undefined
 			}
 		};
 
@@ -46,10 +46,6 @@ module.exports = Normalizer({
 				cert: _cert = options.https.cert,
 				key: _key = options.https.key
 			} = _https;
-
-			if (_enabled) {
-
-			}
 
 			options.https.port = _port;
 			options.https.enabled = _enabled;

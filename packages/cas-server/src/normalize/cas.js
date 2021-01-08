@@ -1,47 +1,35 @@
-const DEFAULT = {
-	AUTHENTICATE() {
-
-	}
+const preset = {
+	MemoryTicketStore: require('../../preset/MemoryTicketStore'),
+	ApereoResponse: require('../../preset/ApereoResponse'),
+	SimpleAuthentication: require('../../preset/SimpleAuthentication'),
+	SimpleServiceRegistry: require('../../preset/SimpleJsonServiceRegistry')
 };
 
 module.exports = function normalize(_options = {}) {
 	const options = {
-		server: {
-			http: {
-				
-			},
-			https: {
-				cert: null,
-				key: null
-			},
-			cookie: {
-				path: '/',
-				tgcKey: 'CASTGC'
-			},
-			response: {
-	
-			},
+		cookie: {
+			path: '/',
+			tgcKey: 'CASTGC',
+			httpOnly: true
 		},
-		registry: {
-			service: {
-
+		response: preset.ApereoResponse(),
+		ServiceRegistry: preset.SimpleServiceRegistry(),
+		TicketRegistry: {
+			store: preset.MemoryTicketStore(),
+			tgt: {
+				maxTimeToLiveInSeconds: 28800000,
+				timeToKillInSeconds: 7200000
 			},
-			ticket: {
-				TicketGrantingTicket: {
-					maxTimeToLiveInSeconds: 28800000,
-					timeToKillInSeconds: 7200000
-				},
-				ServiceTicket: {
-					timeToKillInSeconds: 10000
-				}
+			st: {
+				timeToKillInSeconds: 10000
 			}
 		},
-		authenticate: DEFAULT.AUTHENTICATE
+		authenticate: preset.SimpleAuthentication(),
 	};
 
 	const {
-		security: _security = options.security,
-		server: _server = options.server
+		cookie: _cookie = options.cookie,
+		registry
 	} = _options;
 
 	return options;
