@@ -22,9 +22,7 @@
  * 
  * https://apereo.github.io/cas/6.1.x/protocol/CAS-Protocctxol-Specification.html#28-p3servicevalidate-cas-30
  */
-const CasError = require('./IssuerErrors');
-
-module.exports = function CredentialRequestor() {
+module.exports = function CredentialRequestor({ CAS }) {
 	return async function requestor(ctx) {
 		const { ticketGrantingTicket } = ctx.state;
 		const { renew, gateway } = ctx.query;
@@ -32,11 +30,11 @@ module.exports = function CredentialRequestor() {
 		ctx.state.primary = false;
 
 		if (gateway && !renew) {
-			throw CasError.GatewayWithoutTicket();
+			return ctx.state.responseType = CAS.Response.Type.GatewayWithoutTicket;
 		}
 
 		if (ticketGrantingTicket === null || renew) {
-			throw CasError.CredentialRequired();
+			return ctx.state.responseType = CAS.Response.Type.CredentialRequired;
 		}
 	};
 };

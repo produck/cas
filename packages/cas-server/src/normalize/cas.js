@@ -12,16 +12,19 @@ module.exports = function normalize(_options = {}) {
 			tgcKey: 'CASTGC',
 			httpOnly: true
 		},
+		router: {
+			path: ''
+		},
 		response: preset.ApereoResponse(),
 		ServiceRegistry: preset.SimpleServiceRegistry(),
 		TicketRegistry: {
 			store: preset.MemoryTicketStore(),
 			tgt: {
-				maxTimeToLiveInSeconds: 28800000,
-				timeToKillInSeconds: 7200000
+				maxTimeToLiveInSeconds: 28800,
+				timeToKillInSeconds: 7200
 			},
 			st: {
-				timeToKillInSeconds: 10000
+				timeToKillInSeconds: 10
 			}
 		},
 		authenticate: preset.SimpleAuthentication(),
@@ -29,7 +32,11 @@ module.exports = function normalize(_options = {}) {
 
 	const {
 		cookie: _cookie = options.cookie,
-		registry
+		router: _router = options.router,
+		response: _response = options.response,
+		ServiceRegistry: _ServiceRegistry = options.ServiceRegistry,
+		TicketRegistry: _TicketRegistry = options.TicketRegistry,
+		authenticate: _authenticate = options.authenticate
 	} = _options;
 
 	return options;

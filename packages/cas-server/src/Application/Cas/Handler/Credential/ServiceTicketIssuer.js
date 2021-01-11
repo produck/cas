@@ -1,47 +1,37 @@
-const CasError = require('./IssuerErrors');
-
 module.exports = function ServiceTicketIssuer({
 	CAS, options,
 	// extendAttributes
 }) {
-	const responseMap = {
-		GatewayWithoutTicket: ctx => ctx.redirect(ctx.state.service),
-		BadLoginTicket: CAS.Response.BadLoginTicket,
-		CredentialRequired: CAS.Response.CredentialHolder,
-		AuthenticationSuccess: CAS.Response.AuthenticationSuccess,
-		AuthenticationFailure: CAS.Response.AuthenticationFailure
+	const Response = {
+		[CAS.Response.Type.GatewayWithoutTicket]: ctx => ctx.redirect(ctx.state.service),
+		[CAS.Response.Type.BadLoginTicket]: options.response.BadLoginTicket,
+		[CAS.Response.Type.CredentialRequired]: options.response.CredentialRequired,
+		[CAS.Response.Type.AuthenticationSuccess]: options.response.AuthenticationSuccess,
+		[CAS.Response.Type.AuthenticationFailure]: options.response.AuthenticationFailure
 	};
 	
 	return async function issueServiceTicket(ctx, next) {
-		try {
-			await next();
+		await next();
 
-			const { ticketGrantingTicket, service, principal, primary } = ctx.state;
+		const { ticketGrantingTicket, service, principal, primary } = ctx.state;
 
-			if (ticketGrantingTicket !== null) {
-				if (service !== null) {
-					const serviceTicket = await CAS.Ticket.createServiceTicket(ticketGrantingTicket.id);
-					
-					principal.extend({ primary });
-					// extendAttributes(principal, ctx.state);
-					
-					ctx.cookies.set(options.tgcName, serviceTicket.id);
-					ctx.redirect(IssueToURL(service, serviceTicket.id));
-				}
-
-				throw CasError.AuthenticationSuccess();
+		if (ticketGrantingTicket !== null) {
+			if (service !== null) {
+				const serviceTicket = await CAS.Ticket.createServiceTicket(ticketGrantingTicket.id);
+				
+				principal.extend({ primary });
+				// extendAttributes(principal, ctx.state);
+				
+				ctx.cookies.set(options.tgcName, serviceTicket.id);
+				ctx.redirect(IssueToURL(service, serviceTicket.id));
+			} else {
+				ctx.state.responseType = CAS.Response.Type.AuthenticationSuccess;
 			}
-
-			throw CasError.CredentialRequired();
-		} catch (error) {
-			const { casType } = error;
-			
-			if (!casType) {
-				throw error;
-			}
-
-			return responseMap[casType](ctx);
+		} else {
+			ctx.state.responseType = CAS.Response.Type.CredentialRequired;
 		}
+
+		return await Response[ctx.state.responseType](ctx);
 	};
 };
 

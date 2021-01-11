@@ -1,5 +1,3 @@
-const CasError = require('./IssuerErrors');
-
 module.exports = function CredentialAcceptor({ CAS }) {
 	return async function credentialAcceptor(ctx) {
 		//TODO
@@ -8,7 +6,7 @@ module.exports = function CredentialAcceptor({ CAS }) {
 		const isValidLoginTicket = await CAS.Ticket.validateLoginTicket(loginTicketId);
 
 		if (!isValidLoginTicket) {
-			throw CasError.BadLoginTicket();
+			return ctx.state.responseType = CAS.Reponse.Type.BadLoginTicket;
 		}
 
 		const principalAttributes = await CAS.authenticate({
@@ -17,7 +15,7 @@ module.exports = function CredentialAcceptor({ CAS }) {
 		});
 
 		if (principalAttributes === null) {
-			throw CasError.AuthenticationFailure();
+			return ctx.state.responseType = CAS.Reponse.Type.AuthenticationFailure;
 		}
 		
 		const { ticketGrantingTicket } = ctx.state;

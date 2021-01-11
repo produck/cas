@@ -20,9 +20,9 @@ function CasVersionSetter(versionNumber) {
 }
 
 module.exports = DuckWebKoa(function CasApplication(app, {
-	injection, Extension
+	injection, options, Extension
 }) {
-	const casRouter = new Router();
+	const casRouter = new Router({ prefix: options.router.path });
 	const authenticationRouter = new Router();
 	const validationRouter = new Router();
 	

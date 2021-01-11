@@ -32,9 +32,9 @@ module.exports = function SimpleJsonServiceRegistry(options) {
 
 	return {
 		match(serviceId) {
-			const matched = store.find(service => service.serviceId.test(serviceId));
+			const matched = store.find(mapper => mapper.serviceId.test(serviceId));
 
-			return matched.options || null;
+			return matched ? matched.options : null;
 		}
 	};
 };

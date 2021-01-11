@@ -6,6 +6,8 @@ const https = require('https');
 const os = require('os');
 
 const meta = require('./package.json');
+const CAS = require('./src/CAS');
+
 const normalize = {
 	cas: require('./src/normalize/cas'),
 	server: require('./src/normalize/server'),
@@ -58,7 +60,9 @@ module.exports = Duck({
 			expiration: () => {},
 			suffix: os.hostname()
 		}),
-		Response: {},
+		Response: {
+			Type: CAS.Response.Type
+		},
 		Service: new ServiceRegistry(finalOptions.ServiceRegistry),
 		Principal: new PrincipalProvider()
 	};
