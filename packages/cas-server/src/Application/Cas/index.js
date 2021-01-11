@@ -5,6 +5,7 @@ const bodyparser = require('koa-bodyparser');
 const CredentialRequestor = require('./Handler/Credential/CredentialRequestor');
 const CredentialAcceptor = require('./Handler/Credential/CredentialAcceptor');
 const ServiceTicketIssuer = require('./Handler/Credential/ServiceTicketIssuer');
+const ResponseHanler = require('./Handler/Credential/ResponseHanler');
 
 const ServiceTicketValidator = require('./Handler/Validator/ServiceTicketValidator');
 const ResponseTransformer = require('./Handler/Validator/ResponseTransformer');
@@ -27,6 +28,7 @@ module.exports = DuckWebKoa(function CasApplication(app, {
 	const validationRouter = new Router();
 	
 	authenticationRouter
+		.use(ResponseHanler(injection))
 		.use(ServiceTicketIssuer(injection))
 		.get('/login', CredentialRequestor(injection))
 		.post('/login', CredentialAcceptor(injection));

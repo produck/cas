@@ -24,7 +24,7 @@
  */
 module.exports = function CredentialRequestor({ CAS }) {
 	return async function requestor(ctx) {
-		const { ticketGrantingTicket } = ctx.state;
+		const { tgt } = ctx.state;
 		const { renew, gateway } = ctx.query;
 		
 		ctx.state.primary = false;
@@ -33,7 +33,9 @@ module.exports = function CredentialRequestor({ CAS }) {
 			return ctx.state.responseType = CAS.Response.Type.GatewayWithoutTicket;
 		}
 
-		if (ticketGrantingTicket === null || renew) {
+		if (tgt === null || renew) {
+			ctx.state.lt = await CAS.Ticket.createLoginTicket();
+
 			return ctx.state.responseType = CAS.Response.Type.CredentialRequired;
 		}
 	};

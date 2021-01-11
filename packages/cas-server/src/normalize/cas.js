@@ -1,6 +1,6 @@
 const preset = {
 	MemoryTicketStore: require('../../preset/MemoryTicketStore'),
-	ApereoResponse: require('../../preset/ApereoResponse'),
+	Apereo: require('../../preset/ApereoResponse'),
 	SimpleAuthentication: require('../../preset/SimpleAuthentication'),
 	SimpleServiceRegistry: require('../../preset/SimpleJsonServiceRegistry')
 };
@@ -15,7 +15,7 @@ module.exports = function normalize(_options = {}) {
 		router: {
 			path: ''
 		},
-		response: preset.ApereoResponse(),
+		preset: preset.Apereo(),
 		ServiceRegistry: preset.SimpleServiceRegistry(),
 		TicketRegistry: {
 			store: preset.MemoryTicketStore(),

@@ -1,12 +1,19 @@
-module.exports = function CredentialAcceptor({ CAS }) {
+module.exports = function CredentialAcceptor({ CAS, options }) {
 	return async function credentialAcceptor(ctx) {
 		//TODO
 		// const { warn, method } = ctx.query;
-		const loginTicketId = ctx.request.body.execution;
+		const loginTicketId = options.preset.getLoginTicket(ctx);
+
+		if (loginTicketId === null) {
+			return ctx.state.responseType = CAS.Response.Type.WithoutLoginTicket;
+		}
+
+		ctx.state.lt = loginTicketId;
+
 		const isValidLoginTicket = await CAS.Ticket.validateLoginTicket(loginTicketId);
 
 		if (!isValidLoginTicket) {
-			return ctx.state.responseType = CAS.Reponse.Type.BadLoginTicket;
+			return ctx.state.responseType = CAS.Response.Type.BadLoginTicket;
 		}
 
 		const principalAttributes = await CAS.authenticate({
@@ -15,18 +22,19 @@ module.exports = function CredentialAcceptor({ CAS }) {
 		});
 
 		if (principalAttributes === null) {
-			return ctx.state.responseType = CAS.Reponse.Type.AuthenticationFailure;
+			return ctx.state.responseType = CAS.Response.Type.AuthenticationFailure;
 		}
 		
-		const { ticketGrantingTicket } = ctx.state;
-		const basicPrincipal = await CAS.Principal.create(ticketGrantingTicket.id, principalAttributes);
+		const { tgt } = ctx.state;
+		const basicPrincipal = await CAS.Principal.create(tgt.id, principalAttributes);
 
-		if (ticketGrantingTicket !== null) {
-			CAS.Ticket.destroyTicketGrantingTicket(ticketGrantingTicket.id);
+		//TODO re-auth?
+		if (tgt !== null) {
+			CAS.Ticket.destroyTicketGrantingTicket(tgt.id);
 		}
 
 		ctx.state.principal = basicPrincipal;
-		ctx.state.ticketGrantingTicket = await CAS.Ticket.createTicketGrantingTicket(basicPrincipal);
+		ctx.state.tgt = await CAS.Ticket.createTicketGrantingTicket(basicPrincipal);
 		ctx.state.primary = true;
 	};
 };
