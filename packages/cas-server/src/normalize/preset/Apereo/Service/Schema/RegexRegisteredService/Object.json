@@ -1,0 +1,131 @@
+{
+	"definitions": {
+		"proxyPolicy": {
+			
+		},
+		"authenticationPolicy": {
+
+		},
+		"attributeReleasePolicy": {
+
+		},
+		"responseType": {
+
+		},
+		"usernameAttributeProvider": {
+
+		},
+		"accessStrategy": {
+
+		},
+		"properties": {
+
+		},
+		"multifactorPolicy": {
+
+		},
+		"contacts": {
+
+		},
+		"matchingStrategy": {
+
+		}
+	},
+	"type": "object",
+	"properties": {
+		"id": {
+			"type": "number",
+			"description": "Required unique identifier. This MUST be a valid numeric value."
+		},
+		"name": {
+			"type": "string",
+			"description": "Required name (255 characters or less)."
+		},
+		"description": {
+			"type": "string",
+			"description": "Optional free-text description of the service. (255 characters or less)"
+		},
+		"informationUrl": {
+			"type": "string",
+			"description": "Optional free-text link to the service information guide."
+		},
+		"privacyUrl": {
+			"type": "string",
+			"description": "Optional free-text link to the service privacy policy."
+		},
+		"redirectUrl": {
+			"type": "string",
+			"description": "Optional URL to use when returning an authentication response back to applications."
+		},
+		"logo": {
+			"type": "string",
+			"description": "Optional path to an image file that is the logo for this service. The image will be displayed on the login page along with the service description and name. The value may be a relative path to the images directory of the CAS web application or it may be a full URL."
+		},
+		"serviceId": {
+			"type": "string",
+			"description": "Required regular expression describing a logical service. A logical service defines one or more URLs where a service or services are located. The definition of the url pattern must be done carefully because it can open security breaches."
+		},
+		"theme": {
+			"type": "string",
+			"description": "Optional theme name that may be used to customize the CAS UI when the service requests a ticket."
+		},
+		"proxyPolicy": {
+			"$ref": "#/definitions/proxyPolicy"
+		},
+		"evaluationOrder": {
+			"type": "number",
+			"description": "Determines relative order of evaluation of registered services. This flag is particularly important in cases where two service URL expressions cover the same services; evaluation order determines which registration is evaluated first and acts as an internal sorting factor."
+		},
+		"authenticationPolicy": {
+			"$ref": "#/definitions/authenticationPolicy"
+		},
+		"attributeReleasePolicy": {
+			"$ref": "#/definitions/attributeReleasePolicy"
+		},
+		"logoutType": {
+			"type": "string",
+			"enum": [
+				"BACK_CHANNEL",
+				"FRONT_CHANNEL",
+				"NONE"
+			],
+			"default": "NONE",
+			"description": "Defines how this service should be treated once the logout protocol is initiated. Acceptable values are LogoutType.BACK_CHANNEL, LogoutType.FRONT_CHANNEL or LogoutType.NONE. See this guide for more details on logout."
+		},
+		"responseType": {
+			"$ref": "#/definitions/responseType"
+		},
+		"usernameAttributeProvider": {
+			"$ref": "#/definitions/usernameAttributeProvider"
+		},
+		"accessStrategy": {
+			"$ref": "#/definitions/accessStrategy"
+		},
+		"publicKey": {
+			"type": "string",
+			"description": "The public key associated with this service that is used to authorize the request by encrypting certain elements and attributes in the CAS validation protocol response, such as the PGT or the credential. "
+		},
+		"logoutUrl": {
+			"type": "string",
+			"description": "URL endpoint for this service to receive logout requests. See this guide for more details"
+		},
+		"properties": {
+			"$ref": "#/definitions/properties"
+		},
+		"multifactorPolicy": {
+			"$ref": "#/definitions/multifactorPolicy"
+		},
+		"contacts": {
+			"$ref": "#/definitions/contacts"
+		},
+		"matchingStrategy": {
+			"$ref": "#/definitions/matchingStrategy"
+		}
+	},
+	"required": [
+		"id",
+		"name",
+		"serviceId"
+	],
+	"additionalProperties": false
+}

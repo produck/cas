@@ -1,0 +1,80 @@
+{
+	"type": "object",
+	"properties": {
+		"cookie": {
+			"type": "object",
+			"properties": {
+				"path": {
+					"type": "string"
+				},
+				"tgcKey": {
+					"type": "string"
+				},
+				"httpOnly": {
+					"type": "boolean"
+				}
+			},
+			"additionalProperties": false
+		},
+		"authenticate": {
+			"instanceOf": "Function"
+		},
+		"ticket": {
+			"type": "object",
+			"properties": {
+				"store": {},
+				"expiration": {
+					"type": "object",
+					"properties": {
+						"tgt": {
+							"type": "object",
+							"properties": {
+								"maxTimeToLiveInSeconds": {
+									"type": "number"
+								},
+								"timeToKillInSeconds": {
+									"type": "number"
+								}
+							}
+						},
+						"st": {
+							"type": "object",
+							"properties": {
+								"timeToKillInSeconds": {
+									"type": "number"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"service": {},
+		"preset": {
+			"type": "object",
+			"properties": {
+				"getLoginTicket": {
+					"instanceOf": "Function"
+				},
+				"Response": {
+					"type": "object",
+					"properties": {
+						"BadLoginTicket": {
+							"instanceOf": "Function"
+						},
+						"CredentialRequired": {
+							"instanceOf": "Function"
+						},
+						"AuthenticationSuccess": {
+							"instanceOf": "Function"
+						},
+						"AuthenticationFailure": {
+							"instanceOf": "Function"
+						}
+					}
+				}
+			}
+		}
+	},
+	"additionalProperties": false
+}

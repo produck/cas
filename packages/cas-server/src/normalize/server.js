@@ -2,7 +2,7 @@ const { Normalizer, Validator } = require('@produck/duck');
 
 module.exports = Normalizer({
 	defaults: () => {},
-	validate: Validator(require('./ServerOptionsSchema.json')),
+	validate: Validator(require('./Schema/ServerOptions.json')),
 	handler(_options) {
 		const options = {
 			host: '0.0.0.0',

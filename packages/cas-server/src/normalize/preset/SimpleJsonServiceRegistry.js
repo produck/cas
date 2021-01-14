@@ -1,6 +1,6 @@
 const ANY_SERVICE = {
 	id: 1,
-	serviceId: 'https?://.*',
+	serviceId: '^https?://.*',
 	name: 'Any',
 	description: 'Matching all.',
 	logoutUrl: undefined,

@@ -12,7 +12,7 @@ module.exports = function ApereoPreset() {
 		},
 		Response: {
 			BadLoginTicket(ctx) {
-				ctx.body = 'BadLoginTicket';
+				ctx.redirect('/');
 			},
 			CredentialRequired(ctx) {
 				ctx.body = loginTemplate({ lt: ctx.state.lt.id });
